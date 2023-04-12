@@ -16,8 +16,9 @@ import { JobListSearch } from "@organisms/job-list-search";
 import { paths } from "../../../paths";
 import Link from "next/link";
 import { DashboardLayout } from "@templates/dashboard-layout";
-import { Company } from "@devias-kit-pro/next/src/types/job";
+
 import { subDays, subHours, subMinutes, subSeconds } from "date-fns";
+import { Company } from "src/types/job";
 
 const now = new Date();
 1;

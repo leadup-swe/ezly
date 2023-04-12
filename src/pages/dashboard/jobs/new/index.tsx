@@ -1,15 +1,16 @@
-import { Box, Stack, Typography, Unstable_Grid2 as Grid } from '@mui/material';
-import { DashboardLayout } from '@templates/dashboard-layout';
-import { JobCreateForm } from './(steps)/job-create-form';
-import { NextPageWithLayout } from '@/types/next';
+import { Box, Stack, Typography, Unstable_Grid2 as Grid } from "@mui/material";
+import { DashboardLayout } from "@templates/dashboard-layout";
+
+import { NextPageWithLayout } from "@/types/next";
+import { JobCreateForm } from "@organisms/job-create-form";
 
 const Page: NextPageWithLayout = () => {
   return (
     <>
       <Box
-        component='main'
+        component="main"
         sx={{
-          display: 'flex',
+          display: "flex",
           flexGrow: 1,
         }}
       >
@@ -18,13 +19,13 @@ const Page: NextPageWithLayout = () => {
             xs={12}
             sm={4}
             sx={{
-              backgroundImage: 'url(/assets/people-talking.png)',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              backgroundSize: 'cover',
+              backgroundImage: "url(/assets/people-talking.png)",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
               display: {
-                xs: 'none',
-                md: 'block',
+                xs: "none",
+                md: "block",
               },
             }}
           />
@@ -39,8 +40,8 @@ const Page: NextPageWithLayout = () => {
               },
             }}
           >
-            <Stack maxWidth='sm' spacing={3}>
-              <Typography variant='h4'>{'Create Job Ad'}</Typography>
+            <Stack maxWidth="sm" spacing={3}>
+              <Typography variant="h4">{"Create Job Ad"}</Typography>
               <JobCreateForm />
             </Stack>
           </Grid>

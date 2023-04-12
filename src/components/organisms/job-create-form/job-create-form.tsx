@@ -9,7 +9,7 @@ import { JobDetailsStep } from './job-details-step';
 import { JobPreview } from './job-preview';
 import { useForm } from 'react-hook-form';
 import { NewJobProcedureInput } from '@api/resolvers/jobs/new';
-import { trpc } from '../../../../../trpc';
+import { trpc } from '../../../trpc';
 import { useOrganization } from '@clerk/nextjs';
 
 const StepIcon: FC<StepIconProps> = (props) => {
