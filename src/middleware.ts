@@ -13,5 +13,8 @@ export default withClerkMiddleware(async (req: NextRequest) => {
 });
 
 export const config = {
-  matcher: [ `/(.*?trpc.*?|(?!|.*\\..*|static|favicon.ico).*)` ],
+  matcher: [
+    `/(.*?trpc.*?|(?!|.*\\..*|static|favicon.ico).*)`,
+    `/dashboard/:path*`,
+  ],
 };

@@ -1,10 +1,10 @@
-import { createTRPCNext } from '@trpc/next';
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import { TRPCRouter } from './pages/api/trpc/[trpc]';
+import { createTRPCNext } from "@trpc/next";
+import { httpBatchLink } from "@trpc/client";
+import { TRPCRouter } from "./pages/api/trpc/[trpc]";
 
 const getBaseUrl = () => {
-  if (typeof window === 'undefined') {
-    return '';
+  if (typeof window !== "undefined") {
+    return "";
   }
 
   if (process.env.VERCEL_URL) {
@@ -31,12 +31,4 @@ export const trpc = createTRPCNext<TRPCRouter>({
       },
     };
   },
-});
-
-export const trpcClient = createTRPCProxyClient<TRPCRouter>({
-  links: [
-    httpBatchLink({
-      url: `${getBaseUrl()}/api/trpc`,
-    }),
-  ],
 });
