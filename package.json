@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "prisma:push": "prisma db push",
     "prisma:generate": "prisma generate"
   },
@@ -52,7 +53,15 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/react-beautiful-dnd": "^13.1.4",
     "@types/uuid": "^9.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "eslint": "^8.38.0",
+    "eslint-config-next": "13.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
     "prisma": "^4.12.0",
     "typescript": "^5.0.3"
   }

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { usePopover } from "@hooks/use-popover";
 import { LanguagePopover } from "./language-popover";
+import Image from "next/image";
 
 type Language = "en" | "de" | "es";
 
@@ -30,7 +31,7 @@ export const LanguageSwitch: FC = () => {
               },
             }}
           >
-            <img src={flag} />
+            <Image src={flag} alt="flag" width={28} height={28} />
           </Box>
         </IconButton>
       </Tooltip>

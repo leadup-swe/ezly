@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { tokens } from "@locales/tokens";
+import Image from "next/image";
 
 type Language = "en" | "de" | "es";
 
@@ -87,7 +88,12 @@ export const LanguagePopover: FC<LanguagePopoverProps> = (props) => {
                   },
                 }}
               >
-                <img alt={option.label} src={option.icon} />
+                <Image
+                  alt={option.label}
+                  src={option.icon}
+                  width={28}
+                  height={28}
+                />
               </Box>
             </ListItemIcon>
             <ListItemText

@@ -98,14 +98,14 @@ const useCssVars = (color: NavColor): Record<string, string> => {
       default:
         return {};
     }
-  }, [theme, color]);
+  }, [ theme, color ]);
 };
 
 interface MobileNavProps {
-  color?: NavColor;
-  onClose?: () => void;
-  open?: boolean;
-  sections?: Section[];
+  color?: NavColor
+  onClose?: () => void
+  open?: boolean
+  sections?: Section[]
 }
 
 export const MobileNav: FC<MobileNavProps> = (props) => {

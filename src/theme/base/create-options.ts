@@ -3,7 +3,7 @@ import { createTypography } from './create-typography';
 import { createComponents } from './create-components';
 
 interface Config {
-  direction?: Direction;
+  direction?: Direction
 }
 
 // Here we do not modify the "palette" and "shadows" because "light" and "dark" mode

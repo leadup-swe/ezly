@@ -12,7 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
-  const [loading, setLoading] = useState(true);
+  const [ loading, setLoading ] = useState(true);
   const theme = createTheme({
     colorPreset: "indigo",
     contrast: "normal",

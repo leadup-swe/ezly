@@ -66,7 +66,7 @@ export const moveTask = enrolledUserProcedure
           });
 
         const prevOrder = JSON.parse(column.tasksOrder || "[]");
-        const [newOrder] = move(prevOrder, sourceIndex, destinationIndex);
+        const [ newOrder ] = move(prevOrder, sourceIndex, destinationIndex);
         await prisma.projectColumn.update({
           where: { id: column.id },
           data: { tasksOrder: JSON.stringify(newOrder) },
@@ -94,7 +94,7 @@ export const moveTask = enrolledUserProcedure
             message: "Column not found",
           });
 
-        const [newSourceOrder, newDestinationOrder] = move(
+        const [ newSourceOrder, newDestinationOrder ] = move(
           sourceColumnTasksOrder,
           sourceIndex,
           destinationIndex,

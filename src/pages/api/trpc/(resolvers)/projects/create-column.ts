@@ -33,8 +33,8 @@ export const createColumn = enrolledUserProcedure
         });
         const prevOrder = JSON.parse(project.columnsOrder || "[]");
         const newOrder = project.columnsOrder
-          ? [...prevOrder, newCol.id]
-          : [newCol.id];
+          ? [ ...prevOrder, newCol.id ]
+          : [ newCol.id ];
 
         await tx.project.update({
           where: { id: projectId },

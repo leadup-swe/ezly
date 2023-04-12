@@ -41,7 +41,7 @@ export const createTask = enrolledUserProcedure
       const task = await tx.task.create({ data: { title, columnId } });
       await tx.projectColumn.update({
         where: { id: columnId },
-        data: { tasksOrder: JSON.stringify([...prevOrder, task.id]) },
+        data: { tasksOrder: JSON.stringify([ ...prevOrder, task.id ]) },
       });
       taskId = task.id;
     });

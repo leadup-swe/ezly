@@ -5,8 +5,8 @@ import { createPalette } from './create-palette';
 import { createShadows } from './create-shadows';
 
 interface Config {
-  colorPreset?: ColorPreset;
-  contrast?: Contrast;
+  colorPreset?: ColorPreset
+  contrast?: Contrast
 }
 
 export const createOptions = (config: Config): ThemeOptions => {

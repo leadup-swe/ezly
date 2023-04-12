@@ -6,8 +6,8 @@ import type { ColorPreset, Contrast } from '../index';
 import { getPrimary } from '../utils';
 
 interface Config {
-  colorPreset?: ColorPreset;
-  contrast?: Contrast;
+  colorPreset?: ColorPreset
+  contrast?: Contrast
 }
 
 export const createPalette = (config: Config): PaletteOptions => {

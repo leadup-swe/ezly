@@ -62,17 +62,17 @@ export const getProject = enrolledUserProcedure
 
 export type Column = ProjectColumn & {
   tasks: (Task & {
-    subTasks: SubTask[];
-  })[];
+    subTasks: SubTask[]
+  })[]
 };
 
 export type GetProjectOutput = {
-  title: string;
-  columnsOrder: string[];
+  title: string
+  columnsOrder: string[]
   columns: {
-    [id: string]: { name: string; taskOrder: string[] };
-  };
+    [id: string]: { name: string, taskOrder: string[] }
+  }
   tasks: {
-    [id: string]: { title: string; subtasksCount: number };
-  };
+    [id: string]: { title: string, subtasksCount: number }
+  }
 };
