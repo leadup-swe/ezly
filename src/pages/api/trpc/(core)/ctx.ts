@@ -1,8 +1,8 @@
-import { CreateNextContextOptions } from '@trpc/server/dist/adapters/next';
-import { inferAsyncReturnType } from '@trpc/server';
-import { prisma } from './prisma';
-import { clerkClient, getAuth } from '@clerk/nextjs/server';
-import { NextApiRequest } from 'next';
+import { CreateNextContextOptions } from "@trpc/server/dist/adapters/next";
+import { inferAsyncReturnType } from "@trpc/server";
+import { prisma, boostedPrisma } from "./prisma";
+import { clerkClient, getAuth } from "@clerk/nextjs/server";
+import { NextApiRequest } from "next";
 
 const getUser = async (req: NextApiRequest) => {
   const { userId } = getAuth(req);
@@ -13,7 +13,10 @@ const getUser = async (req: NextApiRequest) => {
     };
   }
 
-  const [ user, organizations ] = await Promise.all([ clerkClient.users.getUser(userId), clerkClient.users.getOrganizationMembershipList({ userId }) ]);
+  const [ user, organizations ] = await Promise.all([
+    clerkClient.users.getUser(userId),
+    clerkClient.users.getOrganizationMembershipList({ userId }),
+  ]);
   return { user, organizations };
 };
 
@@ -24,6 +27,7 @@ export const createContext = async ({ req, res }: CreateNextContextOptions) => {
     req,
     res,
     prisma,
+    boostedPrisma,
     user,
     organizations,
   };
