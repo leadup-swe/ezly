@@ -1,96 +1,101 @@
-import type { ChangeEvent } from 'react';
-import { useCallback, useState } from 'react';
-import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
-import { Box, Button, Card, OutlinedInput, Stack, SvgIcon, Typography } from '@mui/material';
+import { ChangeEvent } from "react";
+import { useCallback, useState } from "react";
+import PlusIcon from "@untitled-ui/icons-react/build/esm/Plus";
+import {
+  Box,
+  Button,
+  Card,
+  Dialog,
+  Stack,
+  SvgIcon,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useDisclosure } from "src/hooks/use-disclosure";
+import { Block, BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import { defaultPadding } from "src/constants/default-padding";
+import "@blocknote/core/style.css";
 
 interface Props {
   onAdd?: (name?: string) => void
 }
 
 export const TaskAdd = ({ onAdd, ...other }: Props) => {
-  const [ isAdding, setIsAdding ] = useState<boolean>(false);
-  const [ name, setName ] = useState<string>('');
+  const [ name, setName ] = useState<string>("");
+  const { open, onOpen, onClose } = useDisclosure();
+  const [ blocks, setBlocks ] = useState<Block[]>([]);
 
-  const handleNameChange = useCallback((event: ChangeEvent<HTMLInputElement>): void => {
-    setName(event.target.value);
-  }, []);
+  const editor: BlockNoteEditor | null = useBlockNote({
+    onEditorContentChange(editor) {
+      setBlocks(editor.topLevelBlocks);
+    },
+  });
 
-  const handleAddInit = useCallback((): void => {
-    setIsAdding(true);
-  }, []);
-
-  const handleAddCancel = useCallback((): void => {
-    setIsAdding(false);
-    setName('');
-  }, []);
+  console.log(blocks);
+  const handleNameChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      setName(event.target.value);
+    },
+    []
+  );
 
   const handleAddConfirm = useCallback(async (): Promise<void> => {
     onAdd?.(name);
-    setIsAdding(false);
-    setName('');
-  }, [ name, onAdd ]);
+  }, [ onAdd ]);
 
   return (
     <Card
       sx={{
-        backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'neutral.800' : 'background.paper'),
+        backgroundColor: (theme) =>
+          theme.palette.mode === "dark" ? "neutral.800" : "background.paper",
       }}
       {...other}
     >
-      {isAdding ? (
-        <Box sx={{ p: 2 }}>
-          <OutlinedInput
-            autoFocus
-            fullWidth
-            placeholder='My new task'
-            name='name'
-            onChange={handleNameChange}
-            sx={{
-              '& .MuiInputBase-input': {
-                px: 2,
+      <Stack
+        alignItems="center"
+        direction="row"
+        onClick={onOpen}
+        spacing={1}
+        sx={{
+          cursor: "pointer",
+          p: 2,
+          userSelect: "none",
+        }}
+      >
+        <SvgIcon color="action">
+          <PlusIcon />
+        </SvgIcon>
+        <Typography color="text.secondary" variant="subtitle1">
+          {"Add Task\r"}
+        </Typography>
+      </Stack>
+      <Dialog maxWidth="sm" open={open} onClose={onClose} fullWidth>
+        <Box p={defaultPadding}>
+          <Typography variant="caption">{"Task name"}</Typography>
+
+          <TextField fullWidth label="Write a task name" sx={{ mt: `4px` }} />
+          <Box mt={2}>
+            <Typography variant="caption">{"Description"}</Typography>
+            <Box
+              mt="4px"
+              overflow="hidden"
+              sx={{
                 py: 1,
-              },
-            }}
-            value={name}
-          />
-          <Stack alignItems='center' direction='row' spacing={2} sx={{ mt: 2 }}>
-            <Button
-              onClick={handleAddConfirm}
-              size='small'
-              startIcon={
-                <SvgIcon>
-                  <PlusIcon />
-                </SvgIcon>
-              }
-              variant='contained'
+                borderRadius: 1,
+                border: (theme) => `1px solid #E5E7EB`,
+                minHeight: `200px`,
+              }}
+              onClick={() => ref.current?.focus()}
             >
-              {'Add Task\r'}
-            </Button>
-            <Button color='inherit' onClick={handleAddCancel} size='small'>
-              {'Cancel\r'}
-            </Button>
+              <BlockNoteView editor={editor} />
+            </Box>
+          </Box>
+          <Stack direction="row" justifyContent="flex-end">
+            <Button>{"Save"}</Button>
           </Stack>
         </Box>
-      ) : (
-        <Stack
-          alignItems='center'
-          direction='row'
-          onClick={handleAddInit}
-          spacing={1}
-          sx={{
-            cursor: 'pointer',
-            p: 2,
-            userSelect: 'none',
-          }}
-        >
-          <SvgIcon color='action'>
-            <PlusIcon />
-          </SvgIcon>
-          <Typography color='text.secondary' variant='subtitle1'>
-            {'Add Task\r'}
-          </Typography>
-        </Stack>
-      )}
+      </Dialog>
     </Card>
   );
 };

@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
+    "@blocknote/core": "^0.5.1",
+    "@blocknote/react": "^0.5.1",
     "@clerk/nextjs": "^4.15.0",
     "@date-io/date-fns": "^2.16.0",
     "@emotion/react": "^11.10.6",
