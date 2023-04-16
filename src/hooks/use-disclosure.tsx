@@ -1,11 +1,23 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
-export const useDisclosure = () => {
+interface Props {
+  delay?: number
+}
+
+export const useDisclosure = (props?: Props) => {
+  const delay = props?.delay;
   const [ open, setOpen ] = useState(false);
+  const [ mounted, setMounted ] = useState(false);
 
-  const onOpen = useCallback(() => setOpen(true), []);
-  const onClose = useCallback(() => setOpen(false), []);
-  const toggle = useCallback(() => setOpen((prev) => !prev), []);
+  const onOpen = useCallback(() => {
+    setMounted(true);
+    setTimeout(() => setOpen(true), delay || 0);
+  }, [ delay ]);
 
-  return { open, onOpen, onClose, toggle };
+  const onClose = useCallback(() => {
+    setOpen(false);
+    setTimeout(() => setMounted(false), delay || 0);
+  }, [ delay ]);
+
+  return { open, mounted, onOpen, onClose };
 };

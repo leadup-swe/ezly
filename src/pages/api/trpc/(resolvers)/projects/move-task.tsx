@@ -67,10 +67,16 @@ export const moveTask = enrolledUserProcedure
 
         const prevOrder = JSON.parse(column.tasksOrder || "[]");
         const [ newOrder ] = move(prevOrder, sourceIndex, destinationIndex);
-        await prisma.projectColumn.update({
-          where: { id: column.id },
-          data: { tasksOrder: JSON.stringify(newOrder) },
-        });
+        await prisma.$transaction([
+          prisma.projectColumn.update({
+            where: { id: column.id },
+            data: { tasksOrder: JSON.stringify(newOrder) },
+          }),
+          prisma.task.update({
+            where: { id: column.tasks[sourceIndex].id },
+            data: { columnId: destinationColumnId },
+          }),
+        ]);
 
         return;
       } else {
@@ -104,14 +110,22 @@ export const moveTask = enrolledUserProcedure
         await prisma.$transaction([
           prisma.projectColumn.update({
             where: { id: sourceColumn.id },
-            data: { tasksOrder: JSON.stringify(newSourceOrder) },
+            data: {
+              tasksOrder: newSourceOrder.length
+                ? JSON.stringify(newSourceOrder)
+                : null,
+            },
           }),
           prisma.projectColumn.update({
             where: { id: destinationColumn.id },
-            data: { tasksOrder: JSON.stringify(newDestinationOrder) },
+            data: {
+              tasksOrder: newDestinationOrder.length
+                ? JSON.stringify(newDestinationOrder)
+                : null,
+            },
           }),
           prisma.task.update({
-            where: { id: sourceColumn.tasks[sourceIndex].id },
+            where: { id: sourceColumnTasksOrder[sourceIndex] },
             data: { columnId: destinationColumn.id },
           }),
         ]);

@@ -1,10 +1,10 @@
-import { cloneDeep } from 'lodash';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { trpc } from 'src/trpc';
+import { cloneDeep } from "lodash";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { trpc } from "src/trpc";
 
-import { move } from 'src/utils/move';
-import { v4 as uuid } from 'uuid';
+import { move } from "src/utils/move";
+import { v4 as uuid } from "uuid";
 
 interface Props {
   projectId: string
@@ -14,14 +14,19 @@ let moveTaskTimer: NodeJS.Timer;
 
 export const useProject = ({ projectId }: Props) => {
   const trpcCtx = trpc.useContext();
-  const project = trpc.projects.getProject.useQuery({ projectId }, { staleTime: Infinity });
+  const project = trpc.projects.getProject.useQuery(
+    { projectId },
+    { staleTime: Infinity }
+  );
 
   const [ tempColId, setTempColId ] = useState<string | null>(null);
   const { mutate: createColumn } = trpc.projects.createColumn.useMutation({
     onMutate: ({ name }) => {
       const tempId = uuid();
       setTempColId(tempId);
-      const projectData = cloneDeep(trpcCtx.projects.getProject.getData({ projectId }));
+      const projectData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
       if (!projectData) return;
 
       const newData = {
@@ -33,12 +38,17 @@ export const useProject = ({ projectId }: Props) => {
     },
     onSuccess: (newId) => {
       if (!tempColId) return;
-      const projectData = cloneDeep(trpcCtx.projects.getProject.getData({ projectId }));
+      const projectData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
       if (!projectData) return;
 
       const newData = {
         ...projectData,
-        columns: { ...projectData?.columns, [newId]: { ...projectData?.columns[tempColId] } },
+        columns: {
+          ...projectData?.columns,
+          [newId]: { ...projectData?.columns[tempColId] },
+        },
         columnsOrder: [ ...projectData.columnsOrder, newId ],
       };
       delete newData.columns[tempColId];
@@ -57,7 +67,9 @@ export const useProject = ({ projectId }: Props) => {
     onMutate: ({ columnId, title }) => {
       const tempId = uuid();
 
-      const projectData = cloneDeep(trpcCtx.projects.getProject.getData({ projectId }));
+      const projectData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
       if (!projectData) return;
       const newTask = { title, subtasksCount: 0 };
       const newData = {
@@ -84,16 +96,33 @@ export const useProject = ({ projectId }: Props) => {
   });
 
   const { mutate: moveTask } = trpc.projects.moveTask.useMutation({
-    onMutate: ({ sourceColumnId, sourceIndex, destinationColumnId, destinationIndex }) => {
-      const projectData = cloneDeep(trpcCtx.projects.getProject.getData({ projectId }));
+    onMutate: ({
+      sourceColumnId,
+      sourceIndex,
+      destinationColumnId,
+      destinationIndex,
+    }) => {
+      const projectData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
       if (!projectData) return;
 
       if (sourceColumnId === destinationColumnId) {
         // resort on the same column
         const column = projectData.columns[sourceColumnId];
 
-        const [ newOrder ] = move(column.taskOrder, sourceIndex, destinationIndex);
-        const newData = { ...projectData, columns: { ...projectData.columns, [sourceColumnId]: { ...column, taskOrder: newOrder } } };
+        const [ newOrder ] = move(
+          column.taskOrder,
+          sourceIndex,
+          destinationIndex
+        );
+        const newData = {
+          ...projectData,
+          columns: {
+            ...projectData.columns,
+            [sourceColumnId]: { ...column, taskOrder: newOrder },
+          },
+        };
         trpcCtx.projects.getProject.setData({ projectId }, newData);
 
         return;
@@ -102,13 +131,21 @@ export const useProject = ({ projectId }: Props) => {
         const sourceColumn = projectData.columns[sourceColumnId];
         const destinationColumn = projectData.columns[destinationColumnId];
 
-        const [ newSourceOrder, newDestinationOrder ] = move(sourceColumn.taskOrder, sourceIndex, destinationIndex, destinationColumn.taskOrder);
+        const [ newSourceOrder, newDestinationOrder ] = move(
+          sourceColumn.taskOrder,
+          sourceIndex,
+          destinationIndex,
+          destinationColumn.taskOrder
+        );
         const newData = {
           ...projectData,
           columns: {
             ...projectData.columns,
             [sourceColumnId]: { ...sourceColumn, taskOrder: newSourceOrder },
-            [destinationColumnId]: { ...destinationColumn, taskOrder: newDestinationOrder },
+            [destinationColumnId]: {
+              ...destinationColumn,
+              taskOrder: newDestinationOrder,
+            },
           },
         };
         trpcCtx.projects.getProject.setData({ projectId }, newData);
@@ -123,11 +160,102 @@ export const useProject = ({ projectId }: Props) => {
     },
   });
 
+  const { mutate: updateTask } = trpc.projects.updateTask.useMutation({
+    onMutate: ({ taskId, title, description }) => {
+      const projectData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
+      if (!projectData) return;
+
+      const newData = {
+        ...projectData,
+        tasks: {
+          ...projectData.tasks,
+          [taskId]: {
+            ...projectData.tasks[taskId],
+            title,
+            description,
+          },
+        },
+      };
+
+      const newTaskData = cloneDeep(
+        trpcCtx.projects.getTask.getData({ taskId })
+      );
+      if (newTaskData) {
+        newTaskData.title = title;
+        newTaskData.description = description as string;
+      }
+
+      trpcCtx.projects.getProject.setData({ projectId }, newData);
+      trpcCtx.projects.getTask.setData({ taskId }, newTaskData);
+    },
+    onSuccess: () => {
+      toast.success(`Task updated!`);
+    },
+    onError: () => {
+      trpcCtx.projects.getProject.invalidate({ projectId });
+      trpcCtx.projects.getTask.invalidate();
+      toast.error(`Failed to update task`);
+    },
+  });
+
+  const { mutate: clearColumn } = trpc.projects.clearColumn.useMutation({
+    onMutate: ({ columnId }) => {
+      const newData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
+      if (!newData) return;
+
+      newData.columns[columnId].taskOrder = [];
+
+      trpcCtx.projects.getProject.setData({ projectId }, newData);
+    },
+    onSuccess: () => {
+      toast.success(`Column cleared!`);
+    },
+    onError: () => {
+      trpcCtx.projects.getProject.invalidate({ projectId });
+      toast.error(`Failed to clear column`);
+    },
+  });
+
+  const { mutate: deleteColumn } = trpc.projects.deleteColumn.useMutation({
+    onMutate: ({ columnId }) => {
+      const newData = cloneDeep(
+        trpcCtx.projects.getProject.getData({ projectId })
+      );
+      if (!newData) return;
+
+      const newColumns = { ...newData.columns };
+      delete newColumns[columnId];
+
+      const newColumnsOrder = newData.columnsOrder.filter(
+        (id) => id !== columnId
+      );
+
+      newData.columns = newColumns;
+      newData.columnsOrder = newColumnsOrder;
+
+      trpcCtx.projects.getProject.setData({ projectId }, newData);
+    },
+    onSuccess: () => {
+      toast.success(`Column deleted!`);
+    },
+    onError: () => {
+      trpcCtx.projects.getProject.invalidate({ projectId });
+      toast.error(`Failed to delete column`);
+    },
+  });
+
   return {
     project,
     createColumn,
     createTask,
     moveTask,
+    updateTask,
+    clearColumn,
+    deleteColumn,
     tasks: project.data?.tasks || {},
     columns: project.data?.columns || {},
     columnsOrder: project.data?.columnsOrder || [],

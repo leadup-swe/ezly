@@ -12,8 +12,14 @@ import { useProject } from "src/hooks/projects/use-project";
 const Page: NextPageWithLayout = () => {
   const r = useRouter();
   const projectId = r.query.id as string;
-  const { project, columnsOrder, createColumn, createTask, moveTask } =
-    useProject({ projectId });
+  const {
+    project,
+    columnsOrder,
+    createColumn,
+    moveTask,
+    clearColumn,
+    deleteColumn,
+  } = useProject({ projectId });
 
   const handleDragEnd = useCallback(
     async ({ source, destination }: DropResult) => {
@@ -42,30 +48,17 @@ const Page: NextPageWithLayout = () => {
     [ projectId ]
   );
 
-  const handleColumnClear = useCallback(
-    async (columnId: string): Promise<void> => {
-      return;
-    },
-    []
-  );
+  const handleColumnClear = useCallback((columnId: string) => {
+    clearColumn({ columnId });
+  }, []);
 
-  const handleColumnDelete = useCallback(
-    async (columnId: string): Promise<void> => {
-      return;
-    },
-    []
-  );
+  const handleColumnDelete = useCallback((columnId: string) => {
+    deleteColumn({ columnId });
+  }, []);
 
   const handleColumnRename = useCallback(
     async (columnId: string, name: string): Promise<void> => {
       return;
-    },
-    []
-  );
-
-  const handleTaskAdd = useCallback(
-    async (columnId: string, title?: string): Promise<void> => {
-      createTask({ title: title || `untitled`, columnId });
     },
     []
   );
@@ -108,8 +101,6 @@ const Page: NextPageWithLayout = () => {
                   onClear={() => handleColumnClear(id)}
                   onDelete={() => handleColumnDelete(id)}
                   onRename={(name) => handleColumnRename(id, name)}
-                  onTaskAdd={(name) => handleTaskAdd(id, name)}
-                  onTaskOpen={(card) => console.log(card)}
                 />
               ))}
               <ColumnAdd onAdd={handleColumnAdd} />
@@ -117,7 +108,6 @@ const Page: NextPageWithLayout = () => {
           </Box>
         </DragDropContext>
       </Box>
-      {/* <TaskModal onClose={handleTaskClose} open={!!currentTaskId} taskId={currentTaskId || undefined} /> */}
     </>
   );
 };

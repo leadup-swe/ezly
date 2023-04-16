@@ -11,15 +11,19 @@ export const getProject = enrolledUserProcedure
   )
   .query(async ({ ctx: { prisma, user }, input: { projectId } }) => {
     const project = await prisma.project.findFirst({
-      where: { id: projectId },
+      where: { id: projectId, status: "ACTIVE" },
       include: {
         collaborators: { select: { userId: true } },
         columns: {
+          where: { status: `ACTIVE` },
           select: {
             id: true,
             name: true,
             tasksOrder: true,
-            tasks: { include: { _count: { select: { subTasks: true } } } },
+            tasks: {
+              where: { status: `ACTIVE` },
+              include: { _count: { select: { subTasks: true } } },
+            },
           },
         },
       },
