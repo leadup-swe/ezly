@@ -248,14 +248,18 @@ export const useProject = ({ projectId }: Props) => {
     },
   });
 
+  const { mutate: assignTask } = trpc.projects.assignTask.useMutation();
+
   return {
     project,
+    collaborators: project.data?.collaborators || [],
     createColumn,
     createTask,
     moveTask,
     updateTask,
     clearColumn,
     deleteColumn,
+    assignTask,
     tasks: project.data?.tasks || {},
     columns: project.data?.columns || {},
     columnsOrder: project.data?.columnsOrder || [],

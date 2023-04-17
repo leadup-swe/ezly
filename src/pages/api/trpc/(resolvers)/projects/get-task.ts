@@ -2,6 +2,7 @@ import { z } from "zod";
 import { enrolledUserProcedure } from "../../(core)/middleware/enrolled-user-procedure";
 import { TRPCError } from "@trpc/server";
 import { brotliDecompressSync } from "zlib";
+import { mapUserIdsToUserObjects } from "../../(utils)/mapUserIdsToUserObject";
 
 export const getTask = enrolledUserProcedure
   .input(
@@ -13,10 +14,14 @@ export const getTask = enrolledUserProcedure
     const task = await ctx.boostedPrisma.task.findUnique({
       where: { id: taskId },
       include: {
+        assignees: { select: { userId: true } },
         column: {
           select: {
             project: {
-              select: { collaborators: { select: { userId: true } } },
+              select: {
+                organizationId: true,
+                collaborators: { select: { userId: true } },
+              },
             },
           },
         },
@@ -38,6 +43,11 @@ export const getTask = enrolledUserProcedure
       });
     }
 
+    const assignees = await mapUserIdsToUserObjects(
+      task.column.project.organizationId,
+      task.assignees.map((a) => a.userId)
+    );
+
     const { column, ...taskData } = task;
     const description = taskData.description
       ? brotliDecompressSync(
@@ -48,6 +58,8 @@ export const getTask = enrolledUserProcedure
     const dto = {
       ...taskData,
       description,
+      assignees,
     };
+
     return dto;
   });

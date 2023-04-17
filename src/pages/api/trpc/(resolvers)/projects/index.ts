@@ -1,3 +1,5 @@
+import { unassignTask } from "./unassign-task";
+import { assignTask } from "./assign-task";
 import { clearColumn } from "./clear-column";
 import { updateTask } from "./update-task";
 import { getTask } from "./get-task";
@@ -29,4 +31,6 @@ export const projects = trpcServer.router({
   updateTask,
   clearColumn,
   deleteColumn,
+  assignTask,
+  unassignTask,
 });

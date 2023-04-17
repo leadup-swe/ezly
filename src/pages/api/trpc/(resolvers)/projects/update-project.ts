@@ -1,7 +1,6 @@
-import { enrolledUserProcedure } from '@api/core/middleware/enrolled-user-procedure';
-import { ProjectStatus, Visibility } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
+import { enrolledUserProcedure } from "@api/core/middleware/enrolled-user-procedure";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 export const updateProject = enrolledUserProcedure
   .input(
@@ -9,17 +8,32 @@ export const updateProject = enrolledUserProcedure
       id: z.string(),
       title: z.string(),
       description: z.string(),
-      visibility: z.enum([ Visibility.PUBLIC, Visibility.PRIVATE ]).optional(),
-      status: z.enum([ ProjectStatus.ACTIVE, ProjectStatus.ARCHIVED, ProjectStatus.DELETED ]).optional(),
-    }),
+      visibility: z.enum([ "PUBLIC", "PRIVATE" ]).optional(),
+      status: z.enum([ "ACTIVE", "ARCHIVED", "DELETED" ]).optional(),
+    })
   )
-  .mutation(async ({ ctx, input: { id, title, description, visibility, status } }) => {
-    const project = await ctx.prisma.project.findFirst({ where: { id }, select: { organizationId: true } });
-    if (!project) throw new TRPCError({ code: `NOT_FOUND`, message: `Project not found` });
+  .mutation(
+    async ({ ctx, input: { id, title, description, visibility, status } }) => {
+      const project = await ctx.prisma.project.findFirst({
+        where: { id },
+        select: { organizationId: true },
+      });
+      if (!project)
+        throw new TRPCError({
+          code: `NOT_FOUND`,
+          message: `Project not found`,
+        });
 
-    if (!ctx.organizations.some((org) => org.id === project.organizationId)) {
-      throw new TRPCError({ code: `FORBIDDEN`, message: `You are not a member of this organization` });
+      if (!ctx.organizations.some((org) => org.id === project.organizationId)) {
+        throw new TRPCError({
+          code: `FORBIDDEN`,
+          message: `You are not a member of this organization`,
+        });
+      }
+
+      return ctx.prisma.project.update({
+        where: {},
+        data: { title, description, visibility, status },
+      });
     }
-
-    return ctx.prisma.project.update({ where: {}, data: { title, description, visibility, status } });
-  });
+  );

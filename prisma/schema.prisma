@@ -123,7 +123,6 @@ model Task {
   title       String
   description String?   @db.Text
   deadline    DateTime?
-  assigneeId  String?
 
   status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
@@ -131,9 +130,22 @@ model Task {
 
   comments      TaskComment[]
   subTasks      SubTask[]
-  subTasksOrder String?       @db.Text
+  subTasksOrder String?        @db.Text
+  assignees     TaskAssignee[]
 
-  @@index([columnId, assigneeId])
+  @@index([columnId])
+}
+
+model TaskAssignee {
+  id     String @id @default(uuid())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId, userId])
 }
 
 model TaskComment {
