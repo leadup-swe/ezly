@@ -26,9 +26,7 @@
       "@locales/*": ["./src/locales/*"],
       "@utils/*": ["./src/utils/*"],
       "@redux/*": ["./src/redux/*"],
-      "@contexts/*": ["./src/contexts/*"],
-      "@api/core/*": ["./src/pages/api/trpc/(core)/*"],
-      "@api/resolvers/*": ["./src/pages/api/trpc/(resolvers)/*"]
+      "@contexts/*": ["./src/contexts/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "env.d.ts"],

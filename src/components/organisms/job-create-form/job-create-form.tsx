@@ -8,7 +8,7 @@ import { JobDescriptionStep } from './job-description-step';
 import { JobDetailsStep } from './job-details-step';
 import { JobPreview } from './job-preview';
 import { useForm } from 'react-hook-form';
-import { NewJobProcedureInput } from '@api/resolvers/jobs/new';
+import { NewJobProcedureInput } from 'src/server/routers/jobs/new';
 import { trpc } from '../../../trpc';
 import { useOrganization } from '@clerk/nextjs';
 

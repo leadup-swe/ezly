@@ -6,7 +6,7 @@ import { useDisclosure } from 'src/hooks/use-disclosure';
 import { trpc } from 'src/trpc';
 import { QuillEditor } from '../quill-editor';
 import { useForm } from 'react-hook-form';
-import { CreateProjectInput } from 'src/pages/api/trpc/(resolvers)/projects/create-project';
+import { CreateProjectInput } from 'src/server/routers/projects/create-project';
 import { useOrganization } from '@clerk/nextjs';
 import { toast } from 'react-hot-toast';
 

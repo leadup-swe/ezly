@@ -1,13 +1,14 @@
-import * as trpcNext from '@trpc/server/adapters/next';
-import { createContext } from './(core)/ctx';
-import { trpcServer } from './(core)/trpc-server';
-import { resolvers } from './(resolvers)';
+import { createNextApiHandler } from '@trpc/server/adapters/next';
+import { createTRPCCtx } from '../../../server/core/ctx';
+import { trpcRouter } from 'src/server/routers';
 
-const trpcRouter = trpcServer.router(resolvers);
-
-export type TRPCRouter = typeof trpcRouter;
-
-export default trpcNext.createNextApiHandler({
+export default createNextApiHandler({
   router: trpcRouter,
-  createContext,
+  createContext: createTRPCCtx,
+  onError:
+    process.env.NODE_ENV === 'development'
+      ? ({ path, error }) => {
+          console.error(`❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`);
+        }
+      : undefined,
 });

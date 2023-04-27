@@ -3,7 +3,7 @@ import ArrowRightIcon from '@untitled-ui/icons-react/build/esm/ArrowRight';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { MobileDatePicker } from '@mui/x-date-pickers';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { NewJobProcedureInput } from '@api/resolvers/jobs/new';
+import { NewJobProcedureInput } from 'src/server/routers/jobs/new';
 import { StackProps } from '@mui/system';
 
 interface Props {

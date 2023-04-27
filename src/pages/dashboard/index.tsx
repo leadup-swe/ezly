@@ -4,12 +4,13 @@ import { NextPageWithLayout } from '@/types/next';
 import { useOrganization, useOrganizationList } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { trpc } from 'src/trpc';
 
 const Page: NextPageWithLayout = () => {
   const { organization, isLoaded } = useOrganization();
   const { organizationList, setActive } = useOrganizationList();
   const r = useRouter();
-
+  const { data } = trpc.projects.hello.useQuery();
   useEffect(() => {
     if (isLoaded && !organization) {
       if (organizationList?.length) {
@@ -23,6 +24,7 @@ const Page: NextPageWithLayout = () => {
   return (
     <Container>
       <Typography>{"We're in baby"}</Typography>
+      <Typography>{JSON.stringify(data)}</Typography>
     </Container>
   );
 };

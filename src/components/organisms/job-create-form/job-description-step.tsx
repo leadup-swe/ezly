@@ -3,7 +3,7 @@ import ArrowRightIcon from '@untitled-ui/icons-react/build/esm/ArrowRight';
 import { Button, Stack, SvgIcon } from '@mui/material';
 import { QuillEditor } from '@organisms/quill-editor';
 import { UseFormSetValue } from 'react-hook-form';
-import { NewJobProcedureInput } from '@api/resolvers/jobs/new';
+import { NewJobProcedureInput } from 'src/server/routers/jobs/new';
 
 interface Props {
   onBack?: () => void

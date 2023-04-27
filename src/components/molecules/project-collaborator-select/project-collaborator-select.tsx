@@ -35,7 +35,7 @@ export const ProjectCollaboratorSelect = ({ projectId, ...other }: Props) => {
             (c.firstname ? ' ' : '') +
             (c.lastname ? c.lastname : !c.firstname && !c.lastname && c.email ? c.email : 'Anonymous');
           return (
-            <IconButton sx={{ p: '4px' }} onClick={() => toggleUserFilter(c.id)}>
+            <IconButton sx={{ p: '4px' }} onClick={() => toggleUserFilter(c.id)} key={c.id}>
               <Tooltip title={fullname}>
                 <Avatar
                   src={c.avatar}

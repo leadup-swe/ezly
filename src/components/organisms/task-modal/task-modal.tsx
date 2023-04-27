@@ -4,8 +4,7 @@ import { useRouter } from 'next/router';
 import { defaultPadding } from 'src/constants/default-padding';
 import { useProject } from 'src/hooks/projects/use-project';
 import { AssigneeSelect } from 'src/components/molecules/assignee-select';
-import '@blocknote/core/style.css';
-import { GetTaskOutput } from 'src/pages/api/trpc/(resolvers)/projects/get-task';
+import { GetTaskOutput } from 'src/server/routers/projects/get-task';
 import { useEditor } from '../editor';
 import { useCallback, useRef, useState } from 'react';
 import _ from 'lodash';
@@ -13,6 +12,7 @@ import moment from 'moment';
 import { XClose } from '@untitled-ui/icons-react';
 import { TitleInput } from 'src/components/atoms/title-input';
 import { SubtaskAdd } from '../kanban/subtask-add';
+import '@blocknote/core/style.css';
 
 type Props = {
   open: boolean
@@ -69,7 +69,7 @@ export const TaskModal = ({ open, onClose, task }: Props) => {
         <Stack direction={smUp ? `row` : `column`}>
           <Stack flex={1} justifyContent='flex-start' order={smUp ? 1 : 2} sx={{ minHeight: `50vh`, maxWidth: `900px`, p: defaultPadding }}>
             <TitleInput placeholder='Title' defaultValue={task.title} fullWidth onChange={updateTitle} inputRef={titleInput} />
-            <Box ml={-6} mt={2}>
+            <Box mt={2}>
               <BlockNoteView editor={editor} />
             </Box>
             <Stack mt={3}>

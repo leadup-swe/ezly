@@ -1,6 +1,6 @@
 import { forwardRef, useContext } from 'react';
 import { Avatar, AvatarGroup, Card, Stack, Tooltip, Typography } from '@mui/material';
-import { GetProjectOutput } from 'src/pages/api/trpc/(resolvers)/projects/get-project';
+import { GetProjectOutput } from 'src/server/routers/projects/get-project';
 import { OrganizationCtx } from 'src/contexts/organization';
 
 interface Props {
@@ -56,7 +56,7 @@ export const TaskCard = forwardRef<HTMLDivElement, Props>(({ task, dragging, arr
                 (user?.firstName ? ' ' : '') +
                 (user?.lastName ? user?.lastName : !user?.firstName && !user?.lastName && user?.identifier ? user.identifier : 'Anonymous');
               return (
-                <Tooltip title={fullname}>
+                <Tooltip title={fullname} key={user?.userId}>
                   <Avatar key={id} src={user?.profileImageUrl} />
                 </Tooltip>
               );
