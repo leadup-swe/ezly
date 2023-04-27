@@ -1,5 +1,19 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
-export const prisma = new PrismaClient();
-export const boostedPrisma = new PrismaClient();
-boostedPrisma.$queryRaw`SET @@boost_cached_queries = true`;
+let prisma: PrismaClient;
+let boostedPrisma: PrismaClient;
+
+export const getPrisma = () => {
+  if (!prisma) {
+    prisma = new PrismaClient();
+  }
+  return prisma;
+};
+
+export const getBoostedPrisma = () => {
+  if (!boostedPrisma) {
+    boostedPrisma = new PrismaClient();
+    boostedPrisma.$queryRaw`SET @@boost_cached_queries = true`;
+  }
+  return boostedPrisma;
+};

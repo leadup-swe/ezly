@@ -1,19 +1,19 @@
-import type { ChangeEvent, FC, KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import DotsHorizontalIcon from '@untitled-ui/icons-react/build/esm/DotsHorizontal';
-import { Chip, IconButton, Input, Menu, MenuItem, Stack, SvgIcon } from '@mui/material';
+import { Chip, IconButton, Menu, MenuItem, Stack, SvgIcon, Typography } from '@mui/material';
 import { usePopover } from '@hooks/use-popover';
 
-interface ColumnHeaderProps {
+interface Props {
   tasksCount: number
   name: string
+  arrangement: `kanban` | `list`
   onClear?: () => void
   onDelete?: () => void
   onRename?: (name: string) => void
 }
 
-export const ColumnHeader: FC<ColumnHeaderProps> = (props) => {
-  const { tasksCount, name, onClear, onDelete, onRename } = props;
+export const ColumnHeader = ({ tasksCount, name, arrangement, onClear, onDelete, onRename }: Props) => {
   const popover = usePopover<HTMLButtonElement>();
   const [ nameCopy, setNameCopy ] = useState<string>(name);
 
@@ -67,6 +67,8 @@ export const ColumnHeader: FC<ColumnHeaderProps> = (props) => {
     onDelete?.();
   }, [ popover, onDelete ]);
 
+  const kanban = arrangement === 'kanban';
+
   return (
     <>
       <Stack
@@ -77,31 +79,12 @@ export const ColumnHeader: FC<ColumnHeaderProps> = (props) => {
         sx={{
           pr: 2,
           py: 1,
+          backgroundColor: kanban ? 'neutral' : 'neutral.100',
         }}
       >
-        <Input
-          disableUnderline
-          fullWidth
-          onBlur={handleNameBlur}
-          onChange={handleNameChange}
-          onKeyUp={handleNameKeyUp}
-          placeholder='Column Name'
-          sx={{
-            '& .MuiInputBase-input': {
-              borderRadius: 1.5,
-              fontWeight: 500,
-              overflow: 'hidden',
-              px: 2,
-              py: 1,
-              textOverflow: 'ellipsis',
-              wordWrap: 'break-word',
-              '&:hover, &:focus': {
-                backgroundColor: (theme) => (theme.palette.mode === 'dark' ? 'neutral.800' : 'neutral.100'),
-              },
-            },
-          }}
-          value={nameCopy}
-        />
+        <Typography variant='subtitle2' px={2}>
+          {nameCopy}
+        </Typography>
         <Stack alignItems='center' direction='row' spacing={2}>
           <Chip label={tasksCount} />
           <IconButton edge='end' onClick={popover.handleOpen} ref={popover.anchorRef}>

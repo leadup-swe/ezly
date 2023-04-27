@@ -5,7 +5,6 @@ import { SvgIcon } from '@mui/material';
 import HomeSmileIcon from '@atoms/icons/untitled-ui/duocolor/home-smile';
 import { paths } from '../../../paths';
 import MessageChatSquareIcon from '@atoms/icons/untitled-ui/duocolor/message-chat-square';
-import { useInterfaceMode } from '@hooks/use-interface-mode';
 import { NewProjectModal } from 'src/components/organisms/new-project-modal';
 import { trpc } from 'src/trpc';
 import { useOrganization } from '@clerk/nextjs';
@@ -31,12 +30,13 @@ export interface Section {
 export const useSections = (): Section[] => {
   const { organization } = useOrganization();
   const { t } = useTranslation();
-  const { mode } = useInterfaceMode();
+
   const { data: enrolledProjects } = trpc.projects.enrolledProjects.useQuery({ organizationId: organization?.id as string }, { enabled: !!organization });
 
   return useMemo(
     () => [
       {
+        subheader: `Dashboard`,
         items: [
           {
             title: `Home`,
@@ -137,6 +137,6 @@ export const useSections = (): Section[] => {
         ],
       },
     ],
-    [ t, mode, enrolledProjects ],
+    [ t, enrolledProjects ],
   );
 };

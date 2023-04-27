@@ -1,152 +1,116 @@
-import { Block } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
-import {
-  Dialog,
-  Box,
-  Stack,
-  Button,
-  IconButton,
-  SvgIcon,
-  Container,
-} from "@mui/material";
-import { useRouter } from "next/router";
-import { defaultPadding } from "src/constants/default-padding";
-import { useProject } from "src/hooks/projects/use-project";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { trpc } from "src/trpc";
-import { ArrowLeft } from "@untitled-ui/icons-react";
-import { TitleInput } from "src/components/atoms/title-input";
-import { MultiSelect } from "src/components/molecules/multi-select";
-import { AssigneeSelect } from "src/components/molecules/assignee-select";
-
-interface NewTaskProps {
-  columnId: string
-  taskId?: never
-}
-
-interface EditTaskProps {
-  columnId?: never
-  taskId: string
-}
+import { BlockNoteView } from '@blocknote/react';
+import { Dialog, Stack, Theme, useMediaQuery, Box, IconButton, SvgIcon, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
+import { defaultPadding } from 'src/constants/default-padding';
+import { useProject } from 'src/hooks/projects/use-project';
+import { AssigneeSelect } from 'src/components/molecules/assignee-select';
+import '@blocknote/core/style.css';
+import { GetTaskOutput } from 'src/pages/api/trpc/(resolvers)/projects/get-task';
+import { useEditor } from '../editor';
+import { useCallback, useRef, useState } from 'react';
+import _ from 'lodash';
+import moment from 'moment';
+import { XClose } from '@untitled-ui/icons-react';
+import { TitleInput } from 'src/components/atoms/title-input';
+import { SubtaskAdd } from '../kanban/subtask-add';
 
 type Props = {
   open: boolean
-  mounted: boolean
   onClose: () => void
-} & (NewTaskProps | EditTaskProps);
+  task: GetTaskOutput
+};
 
-interface FormValues {
-  title: string
-}
-
-export const TaskModal = ({
-  open,
-  mounted,
-  onClose,
-  columnId,
-  taskId,
-}: Props) => {
+export const TaskModal = ({ open, onClose, task }: Props) => {
+  const smUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const r = useRouter();
   const projectId = r.query.id as string;
-  const { createTask, updateTask, collaborators, assignTask } = useProject({
-    projectId,
+  const [ mountTime ] = useState(Date.now());
+  const { updateTask, collaborators, assignTask, unassignTask } = useProject({ projectId });
+  const titleInput = useRef<HTMLInputElement>(null);
+  const debouncedUpdateTitle = useRef(_.debounce((newTitle: string) => updateTask({ taskId: task.id, title: newTitle }), 1200, { leading: false })).current;
+  const { editor } = useEditor({
+    initialBlocks: task.description ? JSON.parse(task.description) : undefined,
+    onChange: (b) => updateTask({ taskId: task.id, description: JSON.stringify(b) }),
+    debounced: true,
+    delay: 1200,
   });
-  const task = trpc.projects.getTask.useQuery(
-    { taskId: taskId as string },
-    { enabled: !!taskId && mounted, staleTime: Infinity }
+
+  const updateTitle = useCallback(() => {
+    if (titleInput?.current && moment().isAfter(moment(mountTime).add(1200, `ms`))) {
+      debouncedUpdateTitle(titleInput.current.value);
+    }
+  }, []);
+
+  const handleAssigneeChange = useCallback(
+    (id: string) => {
+      if (task?.assignees.find((a) => a.id === id)) {
+        unassignTask({ taskId: task.id, userId: id });
+      } else {
+        assignTask({ taskId: task?.id as string, userId: id });
+      }
+    },
+    [ task.id ],
   );
 
-  const [ blocks, setBlocks ] = useState<Block[]>([]);
-  const { handleSubmit, register } = useForm<FormValues>({
-    defaultValues: { title: task.data?.title },
-  });
-
-  useEffect(() => {
-    if (task.data?.description && open) {
-      editor?.replaceBlocks([ blocks[0] ], JSON.parse(task.data.description));
-    }
-  }, [ task.dataUpdatedAt, open ]);
-
-  const editor = useBlockNote({
-    onEditorContentChange(editor) {
-      setBlocks(editor.topLevelBlocks);
-    },
-  });
-
-  const handleSave = ({ title }: FormValues) => {
-    if (taskId) {
-      updateTask({ taskId, title, description: JSON.stringify(blocks) });
-    }
-
-    if (columnId) {
-      createTask({ title, columnId, description: JSON.stringify(blocks) });
-    }
-
-    onClose();
-  };
-
-  const handleAssigneeChange = (id: string) => {
-    assignTask({ taskId: taskId as string, userId: id });
-  };
-
-  if (taskId && !task.data) return null;
-
   return (
-    <Dialog maxWidth="md" open={open} onClose={onClose} fullScreen>
-      <Stack direction="row" p={defaultPadding}>
-        <IconButton size="small" onClick={onClose}>
-          <SvgIcon fontSize="small">
-            <ArrowLeft />
-          </SvgIcon>
-        </IconButton>
-      </Stack>
-      <Stack flex={1} justifyContent="center">
-        <Container maxWidth="lg">
-          <Stack direction="column">
-            <TitleInput
-              placeholder="Title"
-              defaultValue={task.data?.title}
-              fullWidth
-              {...register(`title`)}
-            />
-            <Stack direction="row" ml={-2}>
-              <MultiSelect
-                options={[ { label: `To-do`, value: `id` } ]}
-                label="Status"
-              />
-              <AssigneeSelect
-                projectId={projectId}
-                options={collaborators}
-                label="Select assignees"
-                onChange={handleAssigneeChange}
-                value={task.data ? task.data.assignees.map((a) => a.id) : []}
-              />
-            </Stack>
-          </Stack>
-
-          <Box mt={2}>
-            {/* <Typography variant="caption">{"Description"}</Typography> */}
-            <Box
-              mt="4px"
-              sx={{
-                minHeight: `50vh`,
-                ml: -6,
-              }}
-            >
+    <Dialog maxWidth='lg' open={open} onClose={onClose} disableEnforceFocus fullWidth fullScreen={!smUp} scroll='body'>
+      {!smUp && (
+        <Stack direction='row' justifyContent='flex-end'>
+          <Box>
+            <IconButton size='large' onClick={onClose}>
+              <SvgIcon>
+                <XClose />
+              </SvgIcon>
+            </IconButton>
+          </Box>
+        </Stack>
+      )}
+      <Box px={defaultPadding}>
+        <Stack direction={smUp ? `row` : `column`}>
+          <Stack flex={1} justifyContent='flex-start' order={smUp ? 1 : 2} sx={{ minHeight: `50vh`, maxWidth: `900px`, p: defaultPadding }}>
+            <TitleInput placeholder='Title' defaultValue={task.title} fullWidth onChange={updateTitle} inputRef={titleInput} />
+            <Box ml={-6} mt={2}>
               <BlockNoteView editor={editor} />
             </Box>
-          </Box>
-          <Stack direction="row" justifyContent="flex-end" mt={defaultPadding}>
-            <Button variant="contained" onClick={handleSubmit(handleSave)}>
-              {"Save"}
-            </Button>
-            <Button variant="outlined" sx={{ ml: `12px` }} onClick={onClose}>
-              {"Cancel"}
-            </Button>
+            <Stack mt={3}>
+              <Typography variant='subtitle1' mb={1}>
+                {'Sub-tasks'}
+              </Typography>
+              <SubtaskAdd />
+            </Stack>
+            <Stack mt={3}>
+              <Typography variant='subtitle1'>{'Comments'}</Typography>
+            </Stack>
           </Stack>
-        </Container>
-      </Stack>
+          <Stack
+            direction='column'
+            sx={(theme: Theme) => ({ borderLeft: 1, borderColor: theme.palette.divider })}
+            order={smUp ? 2 : 1}
+            pl={smUp ? defaultPadding : 0}
+            maxWidth='300px'
+            width='100%'
+          >
+            {smUp && (
+              <Stack direction='row' justifyContent='flex-end' mt={1} mr={-2}>
+                <Box>
+                  <IconButton size='large' onClick={onClose}>
+                    <SvgIcon>
+                      <XClose />
+                    </SvgIcon>
+                  </IconButton>
+                </Box>
+              </Stack>
+            )}
+            <AssigneeSelect
+              projectId={projectId}
+              options={collaborators}
+              label='Select assignees'
+              onChange={handleAssigneeChange}
+              value={task.assignees ? task.assignees.map((a) => a.id) : []}
+            />
+          </Stack>
+        </Stack>
+      </Box>
     </Dialog>
   );
 };

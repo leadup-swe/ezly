@@ -1,13 +1,14 @@
-import { z } from "zod";
-import { enrolledUserProcedure } from "../../(core)/middleware/enrolled-user-procedure";
-import { TRPCError } from "@trpc/server";
+import { z } from 'zod';
+import { enrolledUserProcedure } from '../../(core)/middleware/enrolled-user-procedure';
+import { TRPCError } from '@trpc/server';
+import { mapUserIdsToUserObjects } from '../../(utils)/mapUserIdsToUserObject';
 
 export const assignTask = enrolledUserProcedure
   .input(
     z.object({
       taskId: z.string(),
       userId: z.string(),
-    })
+    }),
   )
   .mutation(async ({ ctx: { prisma, user }, input: { taskId, userId } }) => {
     const task = await prisma.task.findFirst({
@@ -17,7 +18,11 @@ export const assignTask = enrolledUserProcedure
         column: {
           select: {
             project: {
-              select: { collaborators: { select: { userId: true } } },
+              select: {
+                id: true,
+                organizationId: true,
+                collaborators: { select: { userId: true } },
+              },
             },
           },
         },
@@ -25,22 +30,31 @@ export const assignTask = enrolledUserProcedure
     });
 
     if (!task) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Task not found' });
     }
 
     if (!task.column.project.collaborators.some((c) => c.userId === user.id)) {
       throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You are not a member of this project",
+        code: 'FORBIDDEN',
+        message: 'You are not a member of this project',
       });
     }
 
-    if (task.assignees.some((a) => a.userId === userId)) return true;
+    const assignee = (await mapUserIdsToUserObjects(task.column.project.organizationId, [ userId ]))[0];
+
+    if (task.assignees.some((a) => a.userId === userId))
+      return {
+        ...assignee,
+        taskId,
+      };
 
     await prisma.task.update({
       where: { id: taskId },
-      data: { assignees: { create: { userId } } },
+      data: { assignees: { create: { userId, projectId: task.column.project.id } } },
     });
 
-    return true;
+    return {
+      ...assignee,
+      taskId,
+    };
   });

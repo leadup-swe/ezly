@@ -17,7 +17,10 @@ export const unassignTask = enrolledUserProcedure
         column: {
           select: {
             project: {
-              select: { collaborators: { select: { userId: true } } },
+              select: {
+                organizationId: true,
+                collaborators: { select: { userId: true } },
+              },
             },
           },
         },
@@ -37,9 +40,8 @@ export const unassignTask = enrolledUserProcedure
 
     if (!task.assignees.some((a) => a.userId === userId)) return true;
 
-    await prisma.task.update({
-      where: { id: taskId },
-      data: { assignees: { delete: { id: userId } } },
+    await prisma.taskAssignee.deleteMany({
+      where: { taskId, userId },
     });
 
     return true;

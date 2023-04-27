@@ -120,13 +120,14 @@ model Task {
   columnId String
   column   ProjectColumn @relation(fields: [columnId], references: [id])
 
-  title       String
+  title       String?
   description String?   @db.Text
   deadline    DateTime?
 
   status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  createdBy String
 
   comments      TaskComment[]
   subTasks      SubTask[]
@@ -137,10 +138,11 @@ model Task {
 }
 
 model TaskAssignee {
-  id     String @id @default(uuid())
-  taskId String
-  task   Task   @relation(fields: [taskId], references: [id])
-  userId String
+  id        String @id @default(uuid())
+  taskId    String
+  task      Task   @relation(fields: [taskId], references: [id])
+  projectId String
+  userId    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -167,7 +169,7 @@ model SubTask {
   taskId String
   task   Task   @relation(fields: [taskId], references: [id])
 
-  title       String
+  name        String
   description String?   @db.Text
   deadline    DateTime?
   assigneeId  String?

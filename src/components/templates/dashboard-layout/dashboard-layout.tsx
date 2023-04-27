@@ -6,8 +6,8 @@ import type { NavColor } from '@/types/settings';
 import { SIDE_NAV_WIDTH, useSections } from './config';
 import { MobileNav } from './mobile-nav';
 import { SideNav } from './side-nav';
-import { TopNav } from './top-nav';
 import { useMobileNav } from './use-mobile-nav';
+import { defaultPadding } from 'src/constants/default-padding';
 
 const VerticalLayoutRoot = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -23,6 +23,7 @@ const VerticalLayoutContainer = styled('div')({
   flex: '1 1 auto',
   flexDirection: 'column',
   width: '100%',
+  paddingTop: defaultPadding,
 });
 
 interface Props {
@@ -37,8 +38,7 @@ export const DashboardLayout = ({ children, navColor }: Props) => {
 
   return (
     <>
-      <TopNav onMobileNavOpen={mobileNav.handleOpen} />
-      {lgUp && <SideNav color='discreet' sections={sections} />}
+      {lgUp && <SideNav color='blend-in' sections={sections} />}
       {!lgUp && <MobileNav color={navColor} onClose={mobileNav.handleClose} open={mobileNav.open} sections={sections} />}
       <VerticalLayoutRoot>
         <VerticalLayoutContainer>{children}</VerticalLayoutContainer>

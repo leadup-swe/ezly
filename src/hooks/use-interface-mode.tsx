@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { PreferencesCtx } from '@contexts/preferences';
+import { OrganizationCtx } from 'src/contexts/organization';
 
 export const useInterfaceMode = () => {
-  const { preferences, toggleMode } = useContext(PreferencesCtx);
+  const { preferences, toggleMode } = useContext(OrganizationCtx);
   return { mode: preferences.mode, toggleMode };
 };

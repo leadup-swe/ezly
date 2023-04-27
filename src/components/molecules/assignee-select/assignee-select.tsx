@@ -1,111 +1,63 @@
-import { useCallback } from "react";
-import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  Checkbox,
-  Menu,
-  MenuItem,
-  Stack,
-  SvgIcon,
-  Typography,
-} from "@mui/material";
-import { usePopover } from "@hooks/use-popover";
-import { User } from "src/types/user";
-import { Edit01 } from "@untitled-ui/icons-react";
-import { useProject } from "src/hooks/projects/use-project";
+import { useCallback } from 'react';
+import { Box, Button, Checkbox, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { usePopover } from '@hooks/use-popover';
+import { User } from 'src/types/user';
+import { useProject } from 'src/hooks/projects/use-project';
+import { UserListItem } from '../user-list-item';
 
 interface Props {
   label: string
-  // Same as type as the value received above
   onChange: (id: string) => void
   options: User[]
-  // This should accept string[], number[] or boolean[]
   value: string[]
   projectId: string
 }
 
-export const AssigneeSelect = ({
-  label,
-  onChange,
-  options,
-  value = [],
-  projectId,
-  ...other
-}: Props) => {
+export const AssigneeSelect = ({ label, onChange, options, value = [], projectId, ...other }: Props) => {
   const popover = usePopover<HTMLButtonElement>();
   const { collaborators } = useProject({ projectId });
 
   const handleValueChange = useCallback(
-    (id: string): void => {
-      console.log(id);
+    (id: string) => {
       onChange(id);
     },
-    [ onChange, value ]
+    [ onChange, value ],
   );
 
   return (
     <>
-      <Button
-        color="inherit"
-        endIcon={
-          <SvgIcon>
-            <Edit01 />
-          </SvgIcon>
-        }
-        onClick={popover.handleOpen}
-        ref={popover.anchorRef}
-        {...other}
-      >
-        {value.length ? (
-          <Stack direction="row" alignItems="center">
-            <Typography variant="button" textTransform="none" mr={1}>
-              {"Assignees"}
-            </Typography>
-            <AvatarGroup>
+      <Box>
+        <Stack>
+          <Typography variant='button' textTransform='capitalize'>
+            {'Assignees'}
+          </Typography>
+        </Stack>
+        <Button
+          color={value.length ? `inherit` : `primary`}
+          variant={value.length ? `text` : `outlined`}
+          onClick={popover.handleOpen}
+          ref={popover.anchorRef}
+          {...other}
+          sx={{ mt: 1, px: 1, ml: -1 }}
+        >
+          {value.length ? (
+            <Stack direction='column' spacing={1} alignItems='flex-start'>
               {value.map((id) => {
-                const collaborator = collaborators.find((c) => c.id === id);
-                return (
-                  <Avatar
-                    alt={`${collaborator?.firstname} ${collaborator?.lastname}`}
-                    src={collaborator?.avatar}
-                    key={id}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                );
+                const user = collaborators.find((c) => c.id === id) as User;
+                return <UserListItem user={user} trimName={26} key={`usr-${user.id}`} />;
               })}
-            </AvatarGroup>
-          </Stack>
-        ) : (
-          label
-        )}
-      </Button>
-      <Menu
-        anchorEl={popover.anchorRef.current}
-        onClose={popover.handleClose}
-        open={popover.open}
-      >
+            </Stack>
+          ) : (
+            `Select Assignees`
+          )}
+        </Button>
+      </Box>
+      <Menu anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open}>
         {options.map((option) => (
-          <MenuItem
-            key={option.id}
-            onClick={() => handleValueChange(option.id)}
-          >
-            <Stack direction="row" alignItems="center">
+          <MenuItem onClick={() => handleValueChange(option.id)} key={`opt-${option.id}`}>
+            <Stack direction='row' alignItems='center'>
               <Checkbox checked={value.includes(option.id)} value={option.id} />
-              <Avatar
-                alt={`${option.firstname} ${option.lastname}`}
-                src={option.avatar}
-                sx={{ width: 32, height: 32 }}
-              />
-              <Typography
-                variant="body2"
-                ml={1}
-              >{`${option.firstname} ${option.lastname}`}</Typography>
-              <Typography
-                variant="body2"
-                color="neutral.400"
-                ml={1}
-              >{`<${option.email}>`}</Typography>
+              <UserListItem user={option} showEmail />
             </Stack>
           </MenuItem>
         ))}

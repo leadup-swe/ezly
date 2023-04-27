@@ -1,47 +1,27 @@
-import PlusIcon from "@untitled-ui/icons-react/build/esm/Plus";
-import { Card, Stack, SvgIcon, Typography } from "@mui/material";
-import { useDisclosure } from "src/hooks/use-disclosure";
-import "@blocknote/core/style.css";
-import { TaskModal } from "../task-modal";
+import { Card, Stack, Typography } from '@mui/material';
 
 interface Props {
-  columnId: string
+  onClick: () => void
+  arrangement: `kanban` | `list`
 }
-export const TaskAdd = ({ columnId, ...other }: Props) => {
-  const { open, mounted, onOpen, onClose } = useDisclosure({ delay: 120 });
+
+export const TaskAdd = ({ onClick, arrangement, ...other }: Props) => {
+  const kanban = arrangement === `kanban`;
 
   return (
-    <>
-      <Card
-        sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === "dark" ? "neutral.800" : "background.paper",
-        }}
-        {...other}
-      >
-        <Stack
-          alignItems="center"
-          direction="row"
-          onClick={onOpen}
-          spacing={1}
-          sx={{ cursor: "pointer", p: 2, userSelect: "none" }}
-        >
-          <SvgIcon color="action">
-            <PlusIcon />
-          </SvgIcon>
-          <Typography color="text.secondary" variant="subtitle1">
-            {"Add Task"}
-          </Typography>
-        </Stack>
-      </Card>
-      {mounted && (
-        <TaskModal
-          mounted={mounted}
-          open={open}
-          onClose={onClose}
-          columnId={columnId}
-        />
-      )}
-    </>
+    <Card
+      sx={{
+        backgroundColor: kanban ? 'background.paper' : `neutral`,
+        borderRadius: kanban ? 2 : 0,
+      }}
+      elevation={kanban ? 1 : 0}
+      {...other}
+    >
+      <Stack alignItems='center' direction='row' onClick={onClick} spacing={1} sx={{ cursor: 'pointer', p: 2, userSelect: 'none' }}>
+        <Typography color='text.secondary' variant='subtitle2'>
+          {'Add Task...'}
+        </Typography>
+      </Stack>
+    </Card>
   );
 };

@@ -1,114 +1,71 @@
-import { useCallback } from "react";
-import type { DropResult } from "react-beautiful-dnd";
-import { DragDropContext } from "react-beautiful-dnd";
-import { Box, Stack, Typography } from "@mui/material";
-import { ColumnCard } from "@organisms/kanban/column-card";
-import { ColumnAdd } from "@organisms/kanban/column-add";
-import { NextPageWithLayout } from "src/types/next";
-import { DashboardLayout } from "src/components/templates/dashboard-layout";
-import { useRouter } from "next/router";
-import { useProject } from "src/hooks/projects/use-project";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Divider, Stack, Tab, Tabs } from '@mui/material';
+import { NextPageWithLayout } from 'src/types/next';
+import { DashboardLayout } from 'src/components/templates/dashboard-layout';
+import { useRouter } from 'next/router';
+import { useProject } from 'src/hooks/projects/use-project';
+import { Board } from 'src/components/organisms/kanban/board';
+import { TitleInput } from 'src/components/atoms/title-input';
+import { throttle } from 'lodash';
+import { ProjectCollaboratorSelect } from 'src/components/molecules/project-collaborator-select';
+
+const tabs = [
+  { label: 'Board', value: 'board' },
+  { label: 'List', value: 'list' },
+  { label: 'Pages', value: 'pages' },
+  { label: 'Settings', value: 'settings' },
+];
 
 const Page: NextPageWithLayout = () => {
   const r = useRouter();
   const projectId = r.query.id as string;
-  const {
-    project,
-    columnsOrder,
-    createColumn,
-    moveTask,
-    clearColumn,
-    deleteColumn,
-  } = useProject({ projectId });
+  const [ title, setTitle ] = useState('');
+  const [ currentTab, setCurrentTab ] = useState<string>('board');
+  const { project, updateName } = useProject({ projectId });
+  const throttleUpdateName = useRef(throttle((projectId: string, name: string) => updateName({ projectId, name }), 1500, { leading: false })).current;
 
-  const handleDragEnd = useCallback(
-    async ({ source, destination }: DropResult) => {
-      if (!destination) return;
-      if (
-        source.droppableId === destination.droppableId &&
-        source.index === destination.index
-      )
-        return;
+  useEffect(() => {
+    if (project.data) {
+      setTitle(project.data.title);
+    }
+  }, [ project.data?.title ]);
 
-      moveTask({
-        projectId,
-        sourceColumnId: source.droppableId,
-        sourceIndex: source.index,
-        destinationColumnId: destination.droppableId,
-        destinationIndex: destination.index,
-      });
-    },
-    [ projectId ]
-  );
-
-  const handleColumnAdd = useCallback(
-    async (name?: string) => {
-      createColumn({ name: name || `untitled`, projectId });
-    },
-    [ projectId ]
-  );
-
-  const handleColumnClear = useCallback((columnId: string) => {
-    clearColumn({ columnId });
+  const handleTabsChange = useCallback((_event: ChangeEvent<any>, value: string) => {
+    setCurrentTab(value);
   }, []);
 
-  const handleColumnDelete = useCallback((columnId: string) => {
-    deleteColumn({ columnId });
-  }, []);
-
-  const handleColumnRename = useCallback(
-    async (columnId: string, name: string): Promise<void> => {
-      return;
-    },
-    []
-  );
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTitle(e.target.value);
+    throttleUpdateName(projectId, e.target.value);
+  };
 
   if (project.isLoading || !project.data) return null;
 
   return (
-    <>
-      <Box
-        component="main"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          flexGrow: 1,
-          overflow: "hidden",
-          pt: 8,
-        }}
-      >
-        <Box sx={{ px: 3 }}>
-          <Typography variant="h4">{project.data.title}</Typography>
-        </Box>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Box
-            sx={{
-              display: "flex",
-              flexGrow: 1,
-              flexShrink: 1,
-              overflowX: "auto",
-              overflowY: "hidden",
-              px: 3,
-              py: 3,
-            }}
-          >
-            <Stack alignItems="flex-start" direction="row" spacing={3}>
-              {columnsOrder.map((id) => (
-                <ColumnCard
-                  key={id}
-                  projectId={projectId}
-                  columnId={id}
-                  onClear={() => handleColumnClear(id)}
-                  onDelete={() => handleColumnDelete(id)}
-                  onRename={(name) => handleColumnRename(id, name)}
-                />
-              ))}
-              <ColumnAdd onAdd={handleColumnAdd} />
-            </Stack>
-          </Box>
-        </DragDropContext>
-      </Box>
-    </>
+    <Stack direction='column' flex={1} overflow='hidden'>
+      <Stack sx={{ px: 3 }}>
+        <Stack direction='row' justifyContent='space-between'>
+          <TitleInput value={title} onChange={handleTitleChange} fullWidth />
+          <ProjectCollaboratorSelect projectId={projectId} />
+        </Stack>
+        <Tabs
+          indicatorColor='primary'
+          onChange={handleTabsChange}
+          scrollButtons='auto'
+          textColor='primary'
+          value={currentTab}
+          variant='scrollable'
+          sx={{ mt: 4 }}
+        >
+          {tabs.map((tab) => (
+            <Tab key={tab.value} label={tab.label} value={tab.value} />
+          ))}
+        </Tabs>
+        <Divider />
+      </Stack>
+      {currentTab === 'board' && <Board projectId={projectId} arrangement='kanban' />}
+      {currentTab === 'list' && <Board projectId={projectId} arrangement='list' />}
+    </Stack>
   );
 };
 

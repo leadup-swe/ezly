@@ -19,6 +19,11 @@ export const removeCollaborator = enrolledUserProcedure
 
     const target = await ctx.prisma.projectCollaborator.findFirst({ where: { AND: [ { projectId, userId } ] }, select: { id: true } });
     if (!target) throw new TRPCError({ code: `BAD_REQUEST`, message: `User is not a collaborator` });
-
-    return ctx.prisma.projectCollaborator.delete({ where: { id: target.id } });
+    
+    ctx.prisma.$transaction([
+      ctx.prisma.projectCollaborator.delete({ where: { id: target.id } }),
+      ctx.prisma.taskAssignee.deleteMany({ where: { AND: [ { projectId }, { userId } ] } }),
+    ])
+    
+    return
   });
