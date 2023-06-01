@@ -1,0 +1,3 @@
+mutation ColumnDelete($input: ColumnDeleteInput!) {
+  columnDelete(input: $input)
+}

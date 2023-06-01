@@ -1,0 +1,3 @@
+mutation TaskMove($input: TaskMoveInput!) {
+  taskMove(input: $input)
+}

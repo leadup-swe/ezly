@@ -1,0 +1,9 @@
+mutation CollaboratorAdd($input: CollaboratorAddInput!) {
+  collaboratorAdd(input: $input) {
+    createdAt
+    id
+    projectId
+    updatedAt
+    userId
+  }
+}

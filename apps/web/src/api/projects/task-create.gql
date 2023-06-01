@@ -1,0 +1,6 @@
+mutation TaskCreate($input: TaskCreateInput!) {
+  taskCreate(input: $input) {
+    columnId
+    taskId
+  }
+}

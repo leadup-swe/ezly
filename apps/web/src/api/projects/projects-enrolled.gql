@@ -1,0 +1,6 @@
+query ProjectsEnrolled {
+  projectsEnrolled {
+    id
+    title
+  }
+}

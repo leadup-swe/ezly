@@ -1,0 +1,3 @@
+mutation TaskUnassign($input: TaskUnassignInput!) {
+  taskUnassign(input: $input)
+}

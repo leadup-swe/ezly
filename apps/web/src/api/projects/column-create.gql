@@ -1,0 +1,5 @@
+mutation ColumnCreate($input: ColumnCreateInput!) {
+  columnCreate(input: $input) {
+    columnId
+  }
+}

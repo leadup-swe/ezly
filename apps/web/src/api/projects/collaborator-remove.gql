@@ -1,0 +1,3 @@
+mutation CollaboratorRemove($input: CollaboratorRemoveInput!) {
+  collaboratorRemove(input: $input)
+}

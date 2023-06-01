@@ -1,0 +1,15 @@
+query TaskGet($input: TaskGetInput!) {
+  taskGet(input: $input) {
+    assigneesIds
+    columnId
+    createdAt
+    createdBy
+    deadline
+    description
+    id
+    status
+    subTasksOrder
+    title
+    updatedAt
+  }
+}

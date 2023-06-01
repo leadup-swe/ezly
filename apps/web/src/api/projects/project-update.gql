@@ -1,0 +1,12 @@
+mutation ProjectUpdate($input: ProjectUpdateInput!) {
+  projectUpdate(input: $input) {
+    columnsOrder
+    createdAt
+    description
+    id
+    status
+    title
+    updatedAt
+    visibility
+  }
+}

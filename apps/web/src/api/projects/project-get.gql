@@ -1,0 +1,18 @@
+query ProjectGet($input: ProjectGetInput!) {
+  projectGet(input: $input) {
+    title
+    collaboratorsIds
+    columnsOrder
+    columns {
+      id
+      name
+      taskOrder
+    }
+    tasks {
+      assigneesIds
+      id
+      subTaskCount
+      title
+    }
+  }
+}

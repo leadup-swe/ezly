@@ -1,0 +1,198 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CollaboratorAddInput {
+  projectId: String!
+  userId: String!
+}
+
+type CollaboratorAddOutput {
+  createdAt: DateTime!
+  id: String!
+  projectId: String!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+input CollaboratorRemoveInput {
+  projectId: String!
+  userId: String!
+}
+
+input ColumnCreateInput {
+  name: String!
+  projectId: String!
+}
+
+type ColumnCreateOutput {
+  columnId: String!
+}
+
+input ColumnDeleteInput {
+  columnId: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  collaboratorAdd(input: CollaboratorAddInput!): CollaboratorAddOutput!
+  collaboratorRemove(input: CollaboratorRemoveInput!): Boolean!
+  columnCreate(input: ColumnCreateInput!): ColumnCreateOutput!
+  columnDelete(input: ColumnDeleteInput!): Boolean!
+  projectCreate(input: ProjectCreateInput!): ProjectCreateOutput!
+  projectUpdate(input: ProjectUpdateInput!): ProjectUpdateOutput!
+  taskAssign(input: TaskAssignInput!): TaskAssignOutput!
+  taskCreate(input: TaskCreateInput!): TaskCreateOutput!
+  taskMove(input: TaskMoveInput!): Boolean!
+  taskUnassign(input: TaskUnassignInput!): Boolean!
+  taskUpdate(input: TaskUpdateInput!): TaskUpdateOutput!
+}
+
+input ProjectCreateInput {
+  description: String
+  title: String!
+  visibility: ProjectVisibility
+}
+
+type ProjectCreateOutput {
+  projectId: String!
+}
+
+type ProjectGetColumnOutput {
+  id: String!
+  name: String!
+  taskOrder: [String!]!
+}
+
+input ProjectGetInput {
+  projectId: String!
+}
+
+type ProjectGetOutput {
+  collaboratorsIds: [String!]!
+  columns: [ProjectGetColumnOutput!]!
+  columnsOrder: [String!]!
+  tasks: [ProjectGetTaskOutput!]!
+  title: String!
+}
+
+type ProjectGetTaskOutput {
+  assigneesIds: [String!]!
+  id: String!
+  subTaskCount: Float!
+  title: String!
+}
+
+input ProjectUpdateInput {
+  description: String
+  projectId: String!
+  status: Status
+  title: String
+  visibility: ProjectVisibility
+}
+
+type ProjectUpdateOutput {
+  columnsOrder: [String!]!
+  createdAt: DateTime!
+  description: String
+  id: String!
+  status: Status!
+  title: String!
+  updatedAt: DateTime!
+  visibility: ProjectVisibility!
+}
+
+enum ProjectVisibility {
+  PRIVATE
+  PUBLIC
+}
+
+type ProjectsEnrolledOutput {
+  id: String!
+  title: String!
+}
+
+type Query {
+  projectGet(input: ProjectGetInput!): ProjectGetOutput!
+  projectsEnrolled: [ProjectsEnrolledOutput!]!
+  taskGet(input: TaskGetInput!): TaskGetOutput!
+}
+
+enum Status {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+input TaskAssignInput {
+  taskId: String!
+  userId: String!
+}
+
+type TaskAssignOutput {
+  taskId: String!
+  userId: String!
+}
+
+input TaskCreateInput {
+  columnId: String!
+}
+
+type TaskCreateOutput {
+  columnId: String!
+  taskId: String!
+}
+
+input TaskGetInput {
+  taskId: String!
+}
+
+type TaskGetOutput {
+  assigneesIds: [String!]!
+  columnId: String!
+  createdAt: DateTime!
+  createdBy: String!
+  deadline: DateTime
+  description: String
+  id: String!
+  status: Status!
+  subTasksOrder: [String!]!
+  title: String
+  updatedAt: DateTime!
+}
+
+input TaskMoveInput {
+  destinationColumnId: String!
+  destinationIndex: Float!
+  projectId: String!
+  sourceColumnId: String!
+  sourceIndex: Float!
+}
+
+input TaskUnassignInput {
+  taskId: String!
+  userId: String!
+}
+
+input TaskUpdateInput {
+  description: String
+  taskId: String!
+  title: String
+}
+
+type TaskUpdateOutput {
+  columnId: String!
+  createdAt: DateTime!
+  createdBy: String!
+  deadline: DateTime
+  description: String
+  status: Status!
+  subTasksOrder: [String!]!
+  taskId: String!
+  title: String
+  updatedAt: DateTime!
+}
